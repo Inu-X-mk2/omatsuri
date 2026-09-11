@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>屋台会計</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin:0; padding:0; }
+  html, body {
+    height: 100%;
+    background: #1c1c1e;
+    color: #fff;
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+    overflow: hidden;
+  }
+  body {
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    padding: 6px 8px;
+    gap: 6px;
+  }
+  .item-card {
+    flex: 1;
+    background: #2c2c2e;
+    border-radius: 14px;
+    padding: 6px 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 0;
+  }
+  .buy-button {
+    flex: 3;
+    height: 100%;
+    border: none;
+    border-radius: 12px;
+    font-size: clamp(16px, 4.6vw, 30px);
+    font-weight: 800;
+    color: #fff;
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.1;
+    transition: transform 0.08s;
+    text-align: center;
+  }
+  .buy-button:active { transform: scale(0.95); }
+  .emoji { font-size: 1.2em; }
+  .frank .buy-button { background: linear-gradient(135deg,#ff9500,#ff6200); }
+  .hotdog .buy-button { background: linear-gradient(135deg,#ff6b6b,#c0392b); }
+  .beer .buy-button { background: linear-gradient(135deg,#ffd60a,#d4a600); color:#3a2e00; }
+  .set .buy-button { background: linear-gradient(135deg,#5ac8fa,#0a84ff); }
+
+  .side {
+    flex: 1.6;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .count-box {
+    flex: 2;
+    background: #3a3a3c;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+  }
+  .count-box .n {
+    font-size: clamp(20px, 6.5vw, 36px);
+    font-weight: 800;
+    line-height: 1;
+  }
+  .count-box .u {
+    font-size: clamp(10px, 2.4vw, 14px);
+    color: #a0a0a5;
+    margin-top: 1px;
+  }
+  .steppers {
+    flex: 1;
+    display: flex;
+    gap: 4px;
+  }
+  .steppers button {
+    flex: 1;
+    background: #48484a;
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-size: clamp(14px, 3.4vw, 22px);
+    font-weight: 700;
+  }
+
+  .price-row {
+    text-align: center;
+    font-size: clamp(9px, 2.1vw, 12px);
+    color: #a0a0a5;
+  }
+  .price-row input {
+    width: 46px;
+    background: #3a3a3c;
+    border: none;
+    border-radius: 5px;
+    color: #fff;
+    padding: 1px 3px;
+    font-size: inherit;
+    text-align: right;
+  }
+
+  .total-card {
+    flex: 0 0 auto;
+    background: #0a84ff;
+    border-radius: 14px;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .total-card .label {
+    font-size: clamp(12px, 3vw, 16px);
+    font-weight: 600;
+  }
+  .total-card .amount {
+    font-size: clamp(20px, 5.5vw, 32px);
+    font-weight: 800;
+  }
+
+  .reset-button {
+    flex: 0 0 auto;
+    background: none;
+    border: 1px solid #48484a;
+    color: #ff453a;
+    border-radius: 8px;
+    font-size: clamp(10px, 2.6vw, 13px);
+    padding: 4px;
+  }
+</style>
+</head>
+<body>
+
+<div class="item-card frank">
+  <button class="buy-button" onclick="addItem('frank')">
+    <span class="emoji">🌭</span>
+    <span>フランク</span>
+  </button>
+  <div class="side">
+    <div class="count-box">
+      <div class="n" id="frankCount">0</div>
+      <div class="u">本</div>
+    </div>
+    <div class="steppers">
+      <button onclick="stepItem('frank', -1)">−</button>
+      <button onclick="stepItem('frank', 1)">＋</button>
+    </div>
+    <div class="price-row">単価<input type="number" id="frankPrice" value="150">円</div>
+  </div>
+</div>
+
+<div class="item-card hotdog">
+  <button class="buy-button" onclick="addItem('hotdog')">
+    <span class="emoji">🥖</span>
+    <span>ホットドッグ</span>
+  </button>
+  <div class="side">
+    <div class="count-box">
+      <div class="n" id="hotdogCount">0</div>
+      <div class="u">個</div>
+    </div>
+    <div class="steppers">
+      <button onclick="stepItem('hotdog', -1)">−</button>
+      <button onclick="stepItem('hotdog', 1)">＋</button>
+    </div>
+    <div class="price-row">単価<input type="number" id="hotdogPrice" value="350">円</div>
+  </div>
+</div>
+
+<div class="item-card beer">
+  <button class="buy-button" onclick="addItem('beer')">
+    <span class="emoji">🍺</span>
+    <span>ビール</span>
+  </button>
+  <div class="side">
+    <div class="count-box">
+      <div class="n" id="beerCount">0</div>
+      <div class="u">杯</div>
+    </div>
+    <div class="steppers">
+      <button onclick="stepItem('beer', -1)">−</button>
+      <button onclick="stepItem('beer', 1)">＋</button>
+    </div>
+    <div class="price-row">単価<input type="number" id="beerPrice" value="300">円</div>
+  </div>
+</div>
+
+<div class="item-card set">
+  <button class="buy-button" onclick="addItem('set')">
+    <span class="emoji">🍺🌭</span>
+    <span>セット</span>
+  </button>
+  <div class="side">
+    <div class="count-box">
+      <div class="n" id="setCount">0</div>
+      <div class="u">セット</div>
+    </div>
+    <div class="steppers">
+      <button onclick="stepItem('set', -1)">−</button>
+      <button onclick="stepItem('set', 1)">＋</button>
+    </div>
+    <div class="price-row">単価<input type="number" id="setPrice" value="400">円</div>
+  </div>
+</div>
+
+<div class="total-card">
+  <div class="label">合計</div>
+  <div class="amount"><span id="grandTotal">0</span>円</div>
+</div>
+
+<button class="reset-button" onclick="resetAll()">リセット</button>
+
+<script>
+  const items = ['frank','hotdog','beer','set'];
+  let counts = { frank: 0, hotdog: 0, beer: 0, set: 0 };
+
+  function getPrice(item) {
+    return Number(document.getElementById(item + 'Price').value) || 0;
+  }
+
+  function render() {
+    items.forEach(item => {
+      document.getElementById(item + 'Count').textContent = counts[item];
+    });
+    const grand = items.reduce((sum, item) => sum + counts[item] * getPrice(item), 0);
+    document.getElementById('grandTotal').textContent = grand.toLocaleString();
+  }
+
+  function addItem(item) {
+    counts[item]++;
+    render();
+    if (navigator.vibrate) navigator.vibrate(15);
+  }
+
+  function stepItem(item, delta) {
+    counts[item] = Math.max(0, counts[item] + delta);
+    render();
+  }
+
+  function resetAll() {
+    if (confirm('記録をリセットしますか？')) {
+      counts = { frank: 0, hotdog: 0, beer: 0, set: 0 };
+      render();
+    }
+  }
+
+  items.forEach(item => {
+    document.getElementById(item + 'Price').addEventListener('input', render);
+  });
+
+  render();
+</script>
+
+</body>
+</html>
